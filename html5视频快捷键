@@ -1,0 +1,88 @@
+// ==UserScript==
+// @name         html5视频快捷键
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  上下左右，大于小于，home，end,单击双击
+// @author       lzl
+// @match        file:///*
+// @match        http://*/*
+// @match        https://*/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    //'use strict';
+    var video=document.getElementsByTagName('video')[0];
+    if (video) {
+        var lzlVideo = {
+            sds: (function(){
+                var r = 0.5, tmp;
+                tmp = function(num){
+                    r += num;
+                    r = Math.abs(r);
+                    return r;
+                };
+                return tmp;
+            })(),
+            vid: function(event){
+                var e = event || window.event,
+                    r = lzlVideo.sds(0),
+                    v = video;
+                if (e) {
+                    switch(e.keyCode){
+                        case 190:                           // 按 >
+                            r = lzlVideo.sds(0.5);
+                            console.log("当前快进步幅" + r);
+                            break;
+                        case 188:                           // 按 <
+                            r = lzlVideo.sds(-0.5);
+                            console.log("当前快进步幅" + r);
+                            break;
+                        case 39:                           // 按 right
+                            v.currentTime += r;
+                            break;
+                        case 37:                           // 按 left
+                            v.currentTime -= r;
+                            break;
+                        case 38:                           // 按 up
+                            v.playbackRate += 0.5;
+                            console.log("当前播放速率" + v.playbackRate);
+                            break;
+                        case 40:                           // 按 down
+                            v.playbackRate -= 0.5;
+                            console.log("当前播放速率" + v.playbackRate);
+                            break;
+                        case 13:                           // 按 enter键
+                           if(v.paused)
+                                v.play();
+                            else
+                                v.pause();
+                            break;
+                        case 36:                           // 按 home键
+                           if(v.webkitDisplayingFullscreen)
+                                v.webkitExitFullscreen();
+                            else
+                                v.webkitEnterFullscreen();
+                            break;
+                        case 35:                           // 按 end键
+                            v.playbackRate = 1;
+                            break;
+                    }
+                }
+            }
+        };
+        document.onkeydown = lzlVideo.vid;
+        video.onclick = function(){
+            if(video.paused)
+                video.play();
+            else
+                video.pause();
+        };
+        video.ondblclick = function(){
+            if(video.webkitDisplayingFullscreen)
+                video.webkitExitFullscreen();
+            else
+                video.webkitEnterFullscreen();
+        };
+    }
+})();
